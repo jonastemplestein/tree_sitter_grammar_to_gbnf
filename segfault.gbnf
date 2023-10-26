@@ -1,0 +1,4 @@
+root ::=  expression
+<expression ::= (integer | binary-operator)
+integer ::=  [0-9]+
+binary-operator ::=  expression  ("+"  |  "-")  expression
