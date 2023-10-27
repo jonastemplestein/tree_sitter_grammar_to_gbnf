@@ -169,7 +169,7 @@ let rules = json.rules;
 let gbnfOutput = '';
 for(let idx in rules) {
 	let rule = rules[idx];
-	gbnfOutput += `${fixSymbolsForGBNF(idx)} ::= ${manageRule(idx, rule)}\n\n`;
+	gbnfOutput += `${fixSymbolsForGBNF(idx)} ::= ws ${manageRule(idx, rule)}\n\n`;
 }
 
 // add some extra rules for elixir specifically - these are defined using an external parser
@@ -214,7 +214,7 @@ let externals = {
 }
 
 for(let key in externals) {
-	gbnfOutput += `${key} ::= ${externals[key]}\n\n`;
+	gbnfOutput += `${key} ::= ws ${externals[key]}\n\n`;
 }
 
 process.stdout.write(gbnfOutput);

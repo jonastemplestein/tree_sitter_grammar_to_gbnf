@@ -1,0 +1,230 @@
+root ::= ( ( -terminator )?  ( ( ( -expression (  ( -terminator -expression )  )*  )  ( -terminator )?  )  )?  ) 
+
+-terminator ::= (  ( ( (  "\r"?"\n" )*  ";"  )  |  ( "\r"?"\n" )+  )  ) 
+
+-expression ::= ( block |  identifier |  alias |  integer |  float |  char |  boolean |  nil |  -atom |  string |  charlist |  sigil |  list |  tuple |  bitstring |  map |  -nullary-operator |  unary-operator |  binary-operator |  dot |  call |  access-call |  anonymous-function ) 
+
+block ::= ws  ( "("  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  ")"  ) 
+
+identifier ::= ws  ( [a-zA-Z]+[?!]? |  "..."  ) 
+
+alias ::= ws  (  ( [A-Z][_a-zA-Z0-9]* (  ( ws* "." ws* [A-Z][_a-zA-Z0-9]* )  )*  )  ) 
+
+integer ::= ws  (  ( ( [0-9]+ (  ( "_"  [0-9]+ )  )*  )  |  ( "0b"  ( [0-1]+ (  ( "_"  [0-1]+ )  )*  )  )  |  ( "0o"  ( [0-7]+ (  ( "_"  [0-7]+ )  )*  )  )  |  ( "0x"  ( [0-9a-fA-F]+ (  ( "_"  [0-9a-fA-F]+ )  )*  )  )  )  ) 
+
+float ::= ws  (  ( ( [0-9]+ (  ( "_"  [0-9]+ )  )*  )  "."  ( [0-9]+ (  ( "_"  [0-9]+ )  )*  )  ( ( [eE] ( ( "-"  |  "+"  )  )?  ( ( [0-9]+ (  ( "_"  [0-9]+ )  )*  )  |  ( "0b"  ( [0-1]+ (  ( "_"  [0-1]+ )  )*  )  )  |  ( "0o"  ( [0-7]+ (  ( "_"  [0-7]+ )  )*  )  )  |  ( "0x"  ( [0-9a-fA-F]+ (  ( "_"  [0-9a-fA-F]+ )  )*  )  )  )  )  )?  )  ) 
+
+char ::= ws  "?" "\\"? [^\n]
+
+boolean ::= ws  ( "true"  |  "false"  ) 
+
+nil ::= ws  "nil" 
+
+-atom ::= ws  ( atom |  quoted-atom ) 
+
+atom ::= ws  (  ( ":"  ( [a-zA-Z@_]+[?!]? |  "->"  |  "::"  |  "|"  |  "&"  |  "="  |  "^^^"  |  "//"  |  ".."  |  "**"  |  "."  |  "@"  |  "<-"  |  "\\\\"  |  "||"  |  "|||"  |  "&&"  |  "&&&"  |  "=="  |  "!="  |  "=~"  |  "==="  |  "!=="  |  "<"  |  ">"  |  "<="  |  ">="  |  "|>"  |  "<<<"  |  ">>>"  |  "<<~"  |  "~>>"  |  "<~"  |  "~>"  |  "<~>"  |  "<|>"  |  "++"  |  "--"  |  "+++"  |  "---"  |  "<>"  |  "+"  |  "-"  |  "*"  |  "/"  |  "+"  |  "-"  |  "!"  |  "^"  |  "~~~"  |  "..."  |  "%{}"  |  "{}"  |  "%"  |  "<<>>"  |  "..//"  )  )  ) 
+
+quoted-atom ::= ws  ( (  -quoted-atom-start )  ( -quoted-i-double |  -quoted-i-single )  ) 
+
+-quoted-i-double ::= ws  ( (  "\""  )  ( (  -quoted-content-i-double )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-double )  )?  )  )*  (  "\""  )  ) 
+
+-quoted-double ::= ws  ( (  "\""  )  ( (  -quoted-content-double )  )?  (  ( escape-sequence ( (  -quoted-content-double )  )?  )  )*  (  "\""  )  ) 
+
+-quoted-i-single ::= ws  ( (  "'"  )  ( (  -quoted-content-i-single )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-single )  )?  )  )*  (  "'"  )  ) 
+
+-quoted-single ::= ws  ( (  "'"  )  ( (  -quoted-content-single )  )?  (  ( escape-sequence ( (  -quoted-content-single )  )?  )  )*  (  "'"  )  ) 
+
+-quoted-i-heredoc-single ::= ws  ( (  "'''"  )  ( (  -quoted-content-i-heredoc-single )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-heredoc-single )  )?  )  )*  (  "'''"  )  ) 
+
+-quoted-heredoc-single ::= ws  ( (  "'''"  )  ( (  -quoted-content-heredoc-single )  )?  (  ( escape-sequence ( (  -quoted-content-heredoc-single )  )?  )  )*  (  "'''"  )  ) 
+
+-quoted-i-heredoc-double ::= ws  ( (  "\"\"\""  )  ( (  -quoted-content-i-heredoc-double )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-heredoc-double )  )?  )  )*  (  "\"\"\""  )  ) 
+
+-quoted-heredoc-double ::= ws  ( (  "\"\"\""  )  ( (  -quoted-content-heredoc-double )  )?  (  ( escape-sequence ( (  -quoted-content-heredoc-double )  )?  )  )*  (  "\"\"\""  )  ) 
+
+-quoted-i-parenthesis ::= ws  ( (  "("  )  ( (  -quoted-content-i-parenthesis )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-parenthesis )  )?  )  )*  (  ")"  )  ) 
+
+-quoted-parenthesis ::= ws  ( (  "("  )  ( (  -quoted-content-parenthesis )  )?  (  ( escape-sequence ( (  -quoted-content-parenthesis )  )?  )  )*  (  ")"  )  ) 
+
+-quoted-i-curly ::= ws  ( (  "{"  )  ( (  -quoted-content-i-curly )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-curly )  )?  )  )*  (  "}"  )  ) 
+
+-quoted-curly ::= ws  ( (  "{"  )  ( (  -quoted-content-curly )  )?  (  ( escape-sequence ( (  -quoted-content-curly )  )?  )  )*  (  "}"  )  ) 
+
+-quoted-i-square ::= ws  ( (  "["  )  ( (  -quoted-content-i-square )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-square )  )?  )  )*  (  "]"  )  ) 
+
+-quoted-square ::= ws  ( (  "["  )  ( (  -quoted-content-square )  )?  (  ( escape-sequence ( (  -quoted-content-square )  )?  )  )*  (  "]"  )  ) 
+
+-quoted-i-angle ::= ws  ( (  "<"  )  ( (  -quoted-content-i-angle )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-angle )  )?  )  )*  (  ">"  )  ) 
+
+-quoted-angle ::= ws  ( (  "<"  )  ( (  -quoted-content-angle )  )?  (  ( escape-sequence ( (  -quoted-content-angle )  )?  )  )*  (  ">"  )  ) 
+
+-quoted-i-bar ::= ws  ( (  "|"  )  ( (  -quoted-content-i-bar )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-bar )  )?  )  )*  (  "|"  )  ) 
+
+-quoted-bar ::= ws  ( (  "|"  )  ( (  -quoted-content-bar )  )?  (  ( escape-sequence ( (  -quoted-content-bar )  )?  )  )*  (  "|"  )  ) 
+
+-quoted-i-slash ::= ws  ( (  "/"  )  ( (  -quoted-content-i-slash )  )?  (  ( ( interpolation |  escape-sequence )  ( (  -quoted-content-i-slash )  )?  )  )*  (  "/"  )  ) 
+
+-quoted-slash ::= ws  ( (  "/"  )  ( (  -quoted-content-slash )  )?  (  ( escape-sequence ( (  -quoted-content-slash )  )?  )  )*  (  "/"  )  ) 
+
+string ::= ws  ( -quoted-i-double |  -quoted-i-heredoc-double ) 
+
+charlist ::= ws  ( -quoted-i-single |  -quoted-i-heredoc-single ) 
+
+interpolation ::= ws  ( "#{"  ( -expression )?  "}"  ) 
+
+escape-sequence ::= ws  (  ( "\\"  ( [^ux] |  "x" [0-9a-fA-F] [0-9a-fA-F]? |  "x{" [0-9a-fA-F]+ "}" |  "u{" [0-9a-fA-F]+ "}" |  "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] )  )  ) 
+
+sigil ::= ws  ( "~"  ( ( (  (  [a-z] )  )  ( -quoted-i-double |  -quoted-i-single |  -quoted-i-heredoc-single |  -quoted-i-heredoc-double |  -quoted-i-parenthesis |  -quoted-i-curly |  -quoted-i-square |  -quoted-i-angle |  -quoted-i-bar |  -quoted-i-slash )  )  |  ( (  (  [A-Z]+ )  )  ( -quoted-double |  -quoted-single |  -quoted-heredoc-single |  -quoted-heredoc-double |  -quoted-parenthesis |  -quoted-curly |  -quoted-square |  -quoted-angle |  -quoted-bar |  -quoted-slash )  )  )  ( (  (  [a-zA-Z0-9]+ )  )  )?  ) 
+
+keywords ::= ws   (  ( pair (  ( ","  pair )  )*  )  ) 
+
+-keywords-with-trailing-separator ::= ws  ( ( pair (  ( ","  pair )  )*  )  ( ","  )?  ) 
+
+pair ::= ws  ( (  -keyword )  (  -expression )  ) 
+
+-keyword ::= ws  ( keyword |  quoted-keyword ) 
+
+keyword ::= ws  (  ( ( [a-zA-Z@_]+[?!]? |  "->"  |  "|"  |  "&"  |  "="  |  "^^^"  |  "//"  |  ".."  |  "**"  |  "."  |  "@"  |  "<-"  |  "\\\\"  |  "||"  |  "|||"  |  "&&"  |  "&&&"  |  "=="  |  "!="  |  "=~"  |  "==="  |  "!=="  |  "<"  |  ">"  |  "<="  |  ">="  |  "|>"  |  "<<<"  |  ">>>"  |  "<<~"  |  "~>>"  |  "<~"  |  "~>"  |  "<~>"  |  "<|>"  |  "++"  |  "--"  |  "+++"  |  "---"  |  "<>"  |  "+"  |  "-"  |  "*"  |  "/"  |  "+"  |  "-"  |  "!"  |  "^"  |  "~~~"  |  "..."  |  "%{}"  |  "{}"  |  "%"  |  "<<>>"  |  "..//"  )  ":" ws )  ) 
+
+quoted-keyword ::= ws  ( ( -quoted-i-double |  -quoted-i-single )  (  ":" ws )  ) 
+
+list ::= ws  ( "["  ( -items-with-trailing-separator )?  "]"  ) 
+
+tuple ::= ws  ( "{"  ( -items-with-trailing-separator )?  "}"  ) 
+
+bitstring ::= ws  ( "<<"  ( -items-with-trailing-separator )?  ">>"  ) 
+
+map ::= ws   (  ( "%"  ( struct )?  "{"  ( (  -items-with-trailing-separator )  )?  "}"  )  ) 
+
+struct ::= ws   (  ( alias |  -atom |  identifier |  unary-operator |  dot |  (  -call-with-parentheses )  )  ) 
+
+-items-with-trailing-separator ::= ws  ( ( ( ( -expression (  ( ","  -expression )  )*  )  ( ","  )?  )  |  ( ( ( ( -expression (  ( ","  -expression )  )*  )  ","  )  )?  (  -keywords-with-trailing-separator )  )  )  ) 
+
+-nullary-operator ::= ws  (   (  ".."  )  ) 
+
+unary-operator ::= ws  (  (   (  ( ( -before-unary-op )?  (  "&"  )  (  -capture-expression )  )  )  )  |   (   (  ( ( -before-unary-op )?  (  ( "+"  |  "-"  |  "!"  |  "^"  |  "~~~"  |  "not"  )  )  (  -expression )  )  )  )  |   (   (  ( ( -before-unary-op )?  (  "@"  )  (  -expression )  )  )  )  |   (   (  ( ( -before-unary-op )?  (  "&"  )  (  integer )  )  )  )  ) 
+
+-capture-expression ::= ws  (  (  ( "("  -expression ")"  )  )  |  -expression ) 
+
+binary-operator ::= ws  (  (  ( (  -expression )  (  ( "<-"  |  "\\\\"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "when"  )  (  ( -expression |  keywords )  )  )  )  |   (  ( (  -expression )  (  "::"  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "|"  )  (  ( -expression |  keywords )  )  )  )  |   (  ( (  -expression )  (  "=>"  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "="  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "||"  |  "|||"  |  "or"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "&&"  |  "&&&"  |  "and"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "=="  |  "!="  |  "=~"  |  "==="  |  "!=="  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "<"  |  ">"  |  "<="  |  ">="  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "|>"  |  "<<<"  |  ">>>"  |  "<<~"  |  "~>>"  |  "<~"  |  "~>"  |  "<~>"  |  "<|>"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "in"  |  (  -not-in )  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "^^^"  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "//"  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "++"  |  "--"  |  "+++"  |  "---"  |  "<>"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ".."  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "+"  |  "-"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  ( "*"  |  "/"  )  )  (  -expression )  )  )  |   (  ( (  -expression )  (  "**"  )  (  -expression )  )  )  |   (  ( (  operator-identifier )  (  "/"  )  (  integer )  )  )  ) 
+
+operator-identifier ::= ws  (  (  "&"  )  |   (  ( "+"  |  "-"  |  "!"  |  "^"  |  "~~~"  |  "not"  )  )  |   (  "@"  )  |  "<-"  |  "\\\\"  |  "when"  |  "::"  |  "|"  |  "="  |  "||"  |  "|||"  |  "or"  |  "&&"  |  "&&&"  |  "and"  |  "=="  |  "!="  |  "=~"  |  "==="  |  "!=="  |  "<"  |  ">"  |  "<="  |  ">="  |  "|>"  |  "<<<"  |  ">>>"  |  "<<~"  |  "~>>"  |  "<~"  |  "~>"  |  "<~>"  |  "<|>"  |  "in"  |  (  -not-in )  |  "^^"  |  "++"  |  "--"  |  "+++"  |  "---"  |  "<>"  |  "*"  |  "/"  |  "**"  |  "->"  |  "."  ) 
+
+dot ::= ws   (  ( (  -expression )  (  "."  )  (  ( alias |  tuple )  )  )  ) 
+
+call ::= ws  ( -call-without-parentheses |  -call-with-parentheses ) 
+
+-call-without-parentheses ::= ws  ( -local-call-without-parentheses |  -local-call-just-do-block |  -remote-call-without-parentheses ) 
+
+-call-with-parentheses ::= ws  ( -local-call-with-parentheses |  -remote-call-with-parentheses |  -anonymous-call |  -double-call ) 
+
+-local-call-without-parentheses ::= ws   (  ( (  identifier )  (  -call-arguments-without-parentheses )  ( ( ( -newline-before-do )?  do-block )  )?  )  ) 
+
+-local-call-with-parentheses ::= ws   (  ( (  identifier )  (  -call-arguments-with-parentheses-immediate )  ( ( ( -newline-before-do )?  do-block )  )?  )  ) 
+
+-local-call-just-do-block ::= ws   (  ( (  identifier )  do-block )  ) 
+
+-remote-call-without-parentheses ::= ws   (  ( (  (  -remote-dot )  )  ( (  -call-arguments-without-parentheses )  )?  ( ( ( -newline-before-do )?  do-block )  )?  )  ) 
+
+-remote-call-with-parentheses ::= ws   (  ( (  (  -remote-dot )  )  (  -call-arguments-with-parentheses-immediate )  ( ( ( -newline-before-do )?  do-block )  )?  )  ) 
+
+-remote-dot ::= ws   (  ( (  -expression )  (  "."  )  (  ( identifier |  (  ( "and"  |  "in"  |  "not"  |  "or"  |  "when"  |  "true"  |  "false"  |  "nil"  |  "after"  |  "catch"  |  "do"  |  "else"  |  "end"  |  "fn"  |  "rescue"  )  )  |  operator-identifier |  (  -quoted-i-double )  |  (  -quoted-i-single )  )  )  )  ) 
+
+-anonymous-call ::= ws  ( (  (  -anonymous-dot )  )  (  -call-arguments-with-parentheses )  ) 
+
+-anonymous-dot ::= ws   (  ( (  -expression )  (  "."  )  )  ) 
+
+-double-call ::= ws   (  ( (  (  ( -local-call-with-parentheses |  -remote-call-with-parentheses |  -anonymous-call )  )  )  (  -call-arguments-with-parentheses )  ( ( ( -newline-before-do )?  do-block )  )?  )  ) 
+
+-call-arguments-with-parentheses ::= ws  ( "("  ( -call-arguments-with-trailing-separator )?  ")"  ) 
+
+-call-arguments-with-parentheses-immediate ::= ws  ( (  "("  )  ( -call-arguments-with-trailing-separator )?  ")"  ) 
+
+-call-arguments-with-trailing-separator ::= ws  ( ( ( -expression (  ( ","  -expression )  )*  )  ( ( ","  (  -keywords-with-trailing-separator )  )  )?  )  |  (  -keywords-with-trailing-separator )  ) 
+
+-call-arguments-without-parentheses ::= ws   (   (  ( ( ( -expression (  ( ","  -expression )  )*  )  ( ( ","  keywords )  )?  )  |  keywords )  )  ) 
+
+do-block ::= ws  ( ( "do"  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  )  (  ( after-block |  rescue-block |  catch-block |  else-block )  )*  "end"  ) 
+
+after-block ::= ws  ( "after"  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  ) 
+
+rescue-block ::= ws  ( "rescue"  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  ) 
+
+catch-block ::= ws  ( "catch"  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  ) 
+
+else-block ::= ws  ( "else"  ( -terminator )?  ( ( ( ( stab-clause )  (  ( -terminator ( stab-clause )  )  )*  )  |  ( ( ( -expression )  (  ( -terminator ( -expression )  )  )*  )  ( -terminator )?  )  )  )?  ) 
+
+access-call ::= ws   (  ( (  -expression )  (  "["  )  (  -expression )  "]"  )  ) 
+
+stab-clause ::= ws   (  ( ( (  -stab-clause-left )  )?  (  "->"  )  ( (  body )  )?  )  ) 
+
+-stab-clause-left ::= ws  ( (  -stab-clause-arguments-with-parentheses )  |  (  -stab-clause-arguments-with-parentheses-with-guard )  |  (  -stab-clause-arguments-without-parentheses )  |  (  -stab-clause-arguments-without-parentheses-with-guard )  ) 
+
+-stab-clause-arguments-with-parentheses ::= ws   (  ( "("  ( ( ( (  (  -expression )  (  ( ","   (  -expression )  )  )*  )  ( ( ","  keywords )  )?  )  |  keywords )  )?  ")"  )  ) 
+
+-stab-clause-arguments-without-parentheses ::= ws   (  ( ( (  (  -expression )  (  ( ","   (  -expression )  )  )*  )  ( ( ","  keywords )  )?  )  |  keywords )  ) 
+
+-stab-clause-arguments-with-parentheses-with-guard ::= ws  ( (  (  -stab-clause-arguments-with-parentheses )  )  (  "when"  )  (  -expression )  ) 
+
+-stab-clause-arguments-without-parentheses-with-guard ::= ws   (  ( (  (  -stab-clause-arguments-without-parentheses )  )  (  "when"  )  (  -expression )  )  ) 
+
+body ::= ws  ( -terminator |  ( ( -terminator )?  ( -expression (  ( -terminator -expression )  )*  )  ( -terminator )?  )  ) 
+
+anonymous-function ::= ws  ( "fn"  ( -terminator )?  ( stab-clause (  ( -terminator stab-clause )  )*  )  "end"  ) 
+
+comment ::= ws  (   (  ( "#"  [^\n]* )  )  ) 
+
+-quoted-atom-start ::= ws ":"
+
+-quoted-content-i-single ::= ws [a-z]*
+
+-quoted-content-i-double ::= ws [a-z]*
+
+-quoted-content-i-heredoc-single ::= ws [a-z]*
+
+-quoted-content-i-heredoc-double ::= ws [a-z]*
+
+-quoted-content-i-parenthesis ::= ws [a-z]*
+
+-quoted-content-i-curly ::= ws [a-z]*
+
+-quoted-content-i-square ::= ws [a-z]*
+
+-quoted-content-i-angle ::= ws [a-z]*
+
+-quoted-content-i-bar ::= ws [a-z]*
+
+-quoted-content-i-slash ::= ws [a-z]*
+
+-quoted-content-single ::= ws [a-z]*
+
+-quoted-content-double ::= ws [a-z]*
+
+-quoted-content-heredoc-single ::= ws [a-z]*
+
+-quoted-content-heredoc-double ::= ws [a-z]*
+
+-quoted-content-parenthesis ::= ws [a-z]*
+
+-quoted-content-curly ::= ws [a-z]*
+
+-quoted-content-square ::= ws [a-z]*
+
+-quoted-content-angle ::= ws [a-z]*
+
+-quoted-content-bar ::= ws [a-z]*
+
+-quoted-content-slash ::= ws [a-z]*
+
+-newline-before-do ::= ws "\n"
+
+-newline-before-binary-operator ::= ws "\n"
+
+-newline-before-comment ::= ws "\n"
+
+-before-unary-op ::= ws ""
+
+-not-in ::= ws "not in"
+
+ws ::= " "
+
