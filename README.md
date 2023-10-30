@@ -151,10 +151,14 @@ Turning the temperature up (in this case all the way to 2) gets some slightly mo
 
 #### Next steps
 
-The next step would be to try and simplify and debug the grammar to see if we can get something elixir-like at least.
+While there seem to be some possible bugs on the llama.cpp side, there are still lots of avenues to explore here. @ejones made a really thoughtful reply to [my llama.cpp issues here](https://github.com/ggerganov/llama.cpp/issues/3801)
 
-But even then, the fact that each token takes longer than the previous one to generate means this method won't work for coding, yet..
+The best path forward would be to 
 
+a) experiment with removing whitespace from model (without making it left-recursive to avoid the llama.cpp bug)
+b) prompt specifically for code generation and consider including ``` blocks in the grammar to help the model understand what it's meant to do
+
+If that gets the model producing Elixir code it would be worth lookin into the increasing per-token slowdown when using the grammar in llama.cpp
 
 ### Usage
 
